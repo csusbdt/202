@@ -3,6 +3,27 @@
 
 using namespace std;
 
+/*
+When studying the following code, keep in mind that main
+memory (RAM) is comprised of a sequence of bytes that are
+sequentially numbered starting from 0. Byte 0 is followed
+by byte 1, which is followed by byte 2 and so on.  These 
+numbers are called adresses. Programs access bytes in memory
+by using addresses. These addresses are either managed directly
+by code using pointers or indirectly by using variables that
+are converted to addresses when the code is compiled.
+
+The other thing to keep in mind is that when programs 
+execute, the operating system allocates two types of memory
+blocks to store data: stacks and heaps.  Each thread is given
+a stack to store data that needed for the execution of a
+function and released when the function returns.  When the
+program starts, it is given a single heap to store data created
+in functions and persists after the function returns.
+See the following stackoverflow discussion:
+https://stackoverflow.com/questions/79923/what-and-where-are-the-stack-and-heap
+*/
+
 int main(int argc, char * argv[]) {
 	// The following definition of x allocates memory
 	// on the program stack to store an integer value.
@@ -86,6 +107,44 @@ int main(int argc, char * argv[]) {
 	assert(*(a + 2) == 0x22);
 	assert(*(a + 3) == 0x11);
 
+	// The following code allocates memory in the heap to
+	// store an int using the "new" operator.
+	ptr = new int(5);
+	assert(*ptr == 5);
+
+	// Memory allocated on the heap is not reclaimed when 
+	// execution returns from the function in which it is
+	// allocated.  Reclamation of heap memory is done explicitly
+	// using the "delete" operator.
+	delete ptr;
+	
+	// After deleting memory, it's a good idea to set the pointer
+	// to an address that corresponds to allocated memory.
+	ptr = &x;
+	// ... or set it to nullptr (memory address zero).
+	ptr = nullptr;
+
+	// The following code shows how to allocate an array of 3 
+	// contiguous ints on the heap.
+	ptr = new int[3];
+
+	// Note that the 3 ints have an indetermined state.
+	// It's usually a good idea to set this memory to zeros
+	// if you are not ready to set to other values needed by
+	// the program.  You can use memset for this purpose.
+	memset(ptr, 0, 3 * sizeof(int));
+	assert(ptr[0] == 0);
+	assert(ptr[1] == 0);
+	assert(ptr[2] == 0);
+
+	// The following code shows the required syntax to reclaim
+	// the array of ints with the delete operator.
+	delete [] ptr;
+
+	// At this point, the following code might not trigger a
+	// memory fault but its effects are indeterminate.
+	//memset(ptr, 0, 3 * sizeof(int));
+	
 	cout << "All tests passed." << endl;
 }
 
