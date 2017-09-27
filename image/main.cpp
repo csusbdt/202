@@ -1,6 +1,6 @@
 #include <iostream>
-
 #include "SDL.h"
+#include "Image.h"
 
 int main(int argc, char * argv[]) {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -21,6 +21,12 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 
+	SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+	Image image(renderer, 100, 100);
+	image.load("ducky.bmp");
+
+	Uint32 previous_millis = SDL_GetTicks();
 	while (true) {
 		SDL_Event e;
 		while (SDL_PollEvent(&e)) {
@@ -29,7 +35,17 @@ int main(int argc, char * argv[]) {
 				return 0;
 			}
 		}
+		Uint32 millis = SDL_GetTicks();
+		double dt =  (millis - previous_millis) / 1000.0;
+		if (dt > 1.0 / 30) {
+			SDL_RenderClear(renderer);
+			image.update(dt);
+			image.draw();
+			SDL_RenderPresent(renderer);
+			previous_millis = millis;
+		}
 	}
+
 
 	SDL_Quit();
 
